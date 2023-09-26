@@ -1,0 +1,136 @@
+import React, { useState } from 'react';
+import axios from 'axios';
+
+const Signup = () => {
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    password: '',
+    confirmPassword: '',
+  });
+  const [message, setMessage] = useState('');
+
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    if (formData.password !== formData.confirmPassword) {
+      setMessage('Passwords do not match');
+      return;
+    }
+
+    try {
+      const response = await axios.post('http://localhost:5000/api/signup', formData);
+      setMessage(response.data.message);
+    } catch (error) {
+      setMessage('Error registering user');
+    }
+  };
+
+  return (
+    <div>
+      <h2>Signup</h2>
+      <form onSubmit={handleSubmit}>
+        <input type="text" name="name" placeholder="Name" onChange={handleChange} required />
+        <input type="email" name="email" placeholder="Email" onChange={handleChange} required />
+        <input type="password" name="password" placeholder="Password" onChange={handleChange} required />
+        <input type="password" name="confirmPassword" placeholder="Confirm Password" onChange={handleChange} required />
+        <button type="submit">Register</button>
+      </form>
+      {message && <p>{message}</p>}
+    </div>
+  );
+};
+
+export default Signup;
+
+
+
+
+import React, { useState } from 'react';
+import axios from 'axios';
+
+const Login = () => {
+  const [formData, setFormData] = useState({
+    email: '',
+    password: '',
+  });
+  const [message, setMessage] = useState('');
+
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    try {
+      const response = await axios.post('http://localhost:5000/api/login', formData);
+      setMessage(response.data.message);
+    } catch (error) {
+      setMessage('Invalid credentials');
+    }
+  };
+
+  return (
+    <div>
+      <h2>Login</h2>
+      <form onSubmit={handleSubmit}>
+        <input type="email" name="email" placeholder="Email" onChange={handleChange} required />
+        <input type="password" name="password" placeholder="Password" onChange={handleChange} required />
+        <button type="submit">Login</button>
+      </form>
+      {message && <p>{message}</p>}
+    </div>
+  );
+};
+
+export default Login;
+
+
+
+
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+
+const Profile = () => {
+  const [user, setUser] = useState(null);
+  const [message, setMessage] = useState('');
+
+  useEffect(() => {
+    const fetchProfile = async () => {
+      const email = localStorage.getItem('email');
+
+      try {
+        const response = await axios.get(`http://localhost:5000/api/profile?email=${email}`);
+        setUser(response.data);
+      } catch (error) {
+        setMessage('Error fetching profile');
+      }
+    };
+
+    fetchProfile();
+  }, []);
+
+  return (
+    <div>
+      <h2>Profile</h2>
+      {user && (
+        <div>
+          <p>Name: {user.name}</p>
+          <p>Email: {user.email}</p>
+          <p>Age: {user.age}</p>
+          <p>Gender: {user.gender}</p>
+          <p>Date of Birth: {user.dob}</p>
+          <p>Mobile: {user.mobile}</p>
+        </div>
+      )}
+      {message && <p>{message}</p>}
+    </div>
+  );
+};
+
+export default Profile;
